@@ -1,4 +1,4 @@
-export function hackee (tablero) {
+export function jaquee(tablero) {
   const posicionReyBlanco = tablero.findIndex(
     (pieza) => pieza && pieza.tipo === 'rey' && pieza.color === 'blanco'
   )

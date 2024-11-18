@@ -4,20 +4,31 @@ import { movimientosPosibles, promocionPeon } from './functions/movimientosPosib
 import { initializeBoard } from './functions/initializeBoard'
 import { Tablero } from './components/Tablero'
 import { Promocion } from './components/Promocion'
-import { hackee } from './functions/isHacke'
-import { esJaqueMate } from './functions/isHackeMate'
+import { jaquee } from './functions/isJaque'
+import { esJaqueMate } from './functions/isJaqueMate'
+import { actualizarPiezasMovidas } from './functions/movimientosPosibles'
+import { handleEnroque } from './functions/handleEnroque'
+import { Ganador } from './components/Ganador'
 
-function App () {
-  const [piezaSeleccionada, setPiezaSeleccionada] = useState(null)
-  const [turno, setTurno] = useState('blanco')
-  const [promocion, setPromocion] = useState(null)
-  const [tablero, setTablero] = useState(() => initializeBoard(turno))
-  const [hackeMate, setHackeMate] = useState(false)
+function App() {
+  const [tablero, setTablero] = useState(() => initializeBoard('blanco'));
+  const [turno, setTurno] = useState('blanco');
+  const [piezaSeleccionada, setPiezaSeleccionada] = useState(null);
+  const [promocion, setPromocion] = useState(null);
+  const [jaqueMate, setJaqueMate] = useState(false);
 
   const handleDragStart = (index) => {
     if (tablero[index].color === turno) {
       setPiezaSeleccionada(index)
     }
+  }
+
+  const resetGame = () => {
+    setTurno('blanco')
+    setJaqueMate(false)
+    setPromocion(null)
+    setPiezaSeleccionada(null)
+    setTablero(initializeBoard('blanco'))
   }
 
   const handlePromocion = (pieza) => {
@@ -37,20 +48,43 @@ function App () {
         setPromocion({ piezaSeleccionada, index })
       } else if (promocion === null) {
         const newTablero = [...tablero]
-        newTablero[index] = tablero[piezaSeleccionada]
-        newTablero[piezaSeleccionada] = null
 
-        if (esJaqueMate(newTablero, turno === 'blanco' ? 'negro' : 'blanco')) {
-          setHackeMate(true)
-          return null
+        if (tablero[piezaSeleccionada].tipo === 'rey') {
+
+          //manejoDeEnroque(piezaSeleccionada,tablero,index)
+          if (handleEnroque(piezaSeleccionada, newTablero, index, setTurno, setTablero, turno, tablero)) {
+          } else {
+            newTablero[index] = tablero[piezaSeleccionada]
+            newTablero[piezaSeleccionada] = null
+
+            const piezasJaque = jaquee(newTablero)
+            if ((turno === 'blanco' && piezasJaque.reyBlancoEnJaque) || (turno === 'negro' && piezasJaque.reyNegroEnJaque)) {
+              return null
+            }
+            actualizarPiezasMovidas(tablero, piezaSeleccionada, index);
+            setTurno(turno === 'blanco' ? 'negro' : 'blanco')
+            setTablero(newTablero)
+            if (esJaqueMate(newTablero, turno === 'blanco' ? 'negro' : 'blanco')) {
+              setJaqueMate(true)
+              return null
+            }
+          }
+        } else {
+          newTablero[index] = tablero[piezaSeleccionada]
+          newTablero[piezaSeleccionada] = null
+
+          const piezasJaque = jaquee(newTablero)
+          if ((turno === 'blanco' && piezasJaque.reyBlancoEnJaque) || (turno === 'negro' && piezasJaque.reyNegroEnJaque)) {
+            return null
+          }
+          actualizarPiezasMovidas(tablero, piezaSeleccionada, index);
+          setTurno(turno === 'blanco' ? 'negro' : 'blanco')
+          setTablero(newTablero)
+          if (esJaqueMate(newTablero, turno === 'blanco' ? 'negro' : 'blanco')) {
+            setJaqueMate(true)
+            return null
+          }
         }
-        const piezasHacke = hackee(newTablero)
-        console.log(turno + ' ' + piezasHacke.reyBlancoEnJaque + ' ' + piezasHacke.reyNegroEnJaque)
-        if ((turno === 'blanco' && piezasHacke.reyBlancoEnJaque) || (turno === 'negro' && piezasHacke.reyNegroEnJaque)) {
-          return null
-        }
-        setTurno(turno === 'blanco' ? 'negro' : 'blanco')
-        setTablero(newTablero)
       }
 
       setPiezaSeleccionada(null)
@@ -65,14 +99,20 @@ function App () {
         <div>
           {promocion && <Promocion turno={turno} handlePromocion={handlePromocion} />}
         </div>
+        <div>
+          <h3>Jugador 2</h3>
+        </div>
         <Tablero tablero={tablero} onDragStart={handleDragStart} onDrop={handleDrop} />
-        <h1>Turno de las: </h1>{turno === 'blanco' ? <img src='./src/utils/peonblanco.png' alt='' /> : <img src='./src/utils/peonnegro.png' alt='' />}
+        <div>
+          <h3>Jugador 1</h3>
+        </div>
       </section>
       {
-        hackeMate !== false && (
-          <h1>gano el blanco</h1>
+        jaqueMate !== false && (
+
+          <Ganador turno={turno === 'blanco' ? 'negro' : 'blanco'} resetGame={resetGame} />
         )
-}
+      }
     </main>
   )
 }
