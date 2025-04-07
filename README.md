@@ -35,6 +35,7 @@ Este proyecto busca ser una base sólida para:
 
 
 #Próximas mejoras 🚀
+- Contemplar el empate por Tablas
 - Implementar un modo multijugador en línea.
 - Agregar un historial de movimientos.
 - Incorporar IA para jugar contra la computadora.
