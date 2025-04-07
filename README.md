@@ -1,4 +1,6 @@
 # Juego de Ajedrez en React🎮♟️
+![image](https://github.com/user-attachments/assets/f9e362dd-c049-4114-b972-25e72dfbf5ec)
+
 Este proyecto es una implementación interactiva de un juego de ajedrez desarrollado con React y JavaScript. El objetivo principal es ofrecer una experiencia visual y funcional completa que permita a los usuarios jugar partidas de ajedrez directamente desde el navegador, respetando las reglas oficiales del juego.
 
 #Características principales ✨
